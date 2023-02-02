@@ -25,11 +25,11 @@ void logger_log(LogType type, const char* file, const char* func, int line, cons
 void logger_destroy();
 void logger_printTime();
 
-#define LOG_DEBUG(msg, ...) logger_log(DEBUG, __FILE__, __FUNCTION__, __LINE__, msg, __VA_ARGS__)
-#define LOG_INFO(msg, ...) logger_log(INFO, __FILE__, __FUNCTION__, __LINE__, msg, __VA_ARGS__)
-#define LOG_ERROR(msg, ...) logger_log(ERROR, __FILE__, __FUNCTION__, __LINE__, msg, __VA_ARGS__)
-#define LOG_WARNING(msg, ...) logger_log(WARNING, __FILE__, __FUNCTION__, __LINE__, msg, __VA_ARGS__)
-#define LOG_FATAL(msg, ...) logger_log(FATAL, __FILE__, __FUNCTION__, __LINE__, msg, __VA_ARGS__)
+#define LOG_DEBUG(...)     logger_log(DEBUG, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__)
+#define LOG_INFO(...)      logger_log(INFO, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__)
+#define LOG_ERROR(...)     logger_log(ERROR, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__)
+#define LOG_WARNING(...)   logger_log(WARNING, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__)
+#define LOG_FATAL(...)     logger_log(FATAL, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__)
 
 
 

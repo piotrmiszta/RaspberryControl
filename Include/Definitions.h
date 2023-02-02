@@ -1,7 +1,3 @@
-//
-// Created by programowanie on 30.01.23.
-//
-
 #ifndef RASPBERRYCONTROL_DEFINITIONS_H
 #define RASPBERRYCONTROL_DEFINITIONS_H
 

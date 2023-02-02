@@ -1,6 +1,3 @@
-//
-// Created by programowanie on 30.01.23.
-//
 #include "../Include/Logger.h"
 Logger* logger = NULL;
 
@@ -22,7 +19,7 @@ void logger_init(const char* filename) {
     fprintf(logger->file, "\n%s\n", NAME);
     fprintf(logger->file, "AUTHOR: %s\n", AUTHOR);
     fprintf(logger->file, "VERSION: %s\n", VERSION);
-    fprintf(logger->file, "\n", VERSION);
+    fprintf(logger->file, "\n");
 }
 void logger_destroy() {
     fclose(logger->file);
@@ -65,7 +62,7 @@ void logger_log(LogType type, const char* file, const char* func, int line, cons
 
     va_list ap;
     va_start(ap, msg);
-    vfprintf(logger->file, msg, &ap);
+    vfprintf(logger->file, msg, ap);
     va_end(ap);
     fprintf(logger->file, "\n");
 }

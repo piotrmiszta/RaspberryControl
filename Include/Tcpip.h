@@ -1,7 +1,3 @@
-//
-// Created by programowanie on 30.01.23.
-//
-
 #ifndef RASPBERRYCONTROL_TCPIP_H
 #define RASPBERRYCONTROL_TCPIP_H
 #include <sys/socket.h>
