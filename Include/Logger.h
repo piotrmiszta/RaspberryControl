@@ -18,10 +18,17 @@ typedef enum LogType{
 
 typedef struct Logger{
     FILE* file;
+    const char* func;
+    const char* fileDesc;
+    int line;
+    LogType type;
+    const char* msg; //this arg will be set and printing by other thread
+    va_list* list;
 }Logger;
 
 void logger_init(const char* filename);
-void logger_log(LogType type, const char* file, const char* func, int line, const char* msg, ...);
+void logger_log(LogType type, const char* file, const char* func, int line, const char* msg, ...); //THIS FUNCTION WILL BE SETTING STRUCT
+void logger_print();
 void logger_destroy();
 void logger_printTime();
 

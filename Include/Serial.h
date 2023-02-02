@@ -57,12 +57,15 @@ typedef enum Serial_State {
 
 typedef struct SerialPort SerialPort;
 
-SerialPort* serial_open(Serial_BaudRate baudRate,
+SerialPort* serial_create(Serial_BaudRate baudRate,
                         Serial_StopBits stopBits,
                         Serial_ParityBit parityBit,
                         Serial_DataBits dataBits,
-                        Serial_State state,
+                        bool echo,
                         const char* device);
+
+void serial_openPort(SerialPort* serial);
+void serial_closePort(SerialPort* serial);
 
 void serial_close(SerialPort* serial);
 
@@ -75,5 +78,5 @@ void serial_setEcho(bool Enabled, SerialPort* serialPort);
 
 
 
-#define SERIAL_OPEN_DEFAULT(device)             serial_open(B_115200, ONE, NONE, EIGHT, CLOSED, device)
+#define SERIAL_CREATE_DEFAULT(device)               serial_create(B_115200, ONE, NONE, EIGHT, CLOSED, device)
 #endif //RASPBERRYCONTROL_SERIAL_H

@@ -28,7 +28,7 @@ void serial_p_setTimeout(SerialPort* serial);
 void serial_p_setInputFlags(SerialPort* serial);
 void serial_p_setOutputFlags(SerialPort* serial);
 void serial_p_setEcho(SerialPort* serial);
-void serial_p_openPort(SerialPort* serial);
+void serial_openPort(SerialPort* serial);
 void serial_p_configure(SerialPort* serial);
 /*******************************************************************************************************
  *                                    IMPLEMENTATION PRIVATE MEMBERS                                   *
@@ -262,21 +262,6 @@ void serial_p_setOutputFlags(SerialPort* serial) {
     serial->termios.c_oflag &= ~OPOST;
 }
 
-void serial_p_openPort(SerialPort* serial) {
-    if(serial->device == NULL) {
-        perror("Cant open file when device is nullptr");
-        LOG_ERROR("Can't open nullptr file");
-        abort();
-    }
-    serial->fileDesc = open(serial->device, O_RDWR);
-    if(serial->fileDesc == -1){
-        perror("Cant open file ");
-        LOG_ERROR("Can't open %s file", serial->device);
-        abort();
-    }
-    serial->state = OPEN;
-}
-
 void serial_p_configure(SerialPort* serialPort) {
     serial_p_getTermios(serialPort);
     serial_p_setDataBits(serialPort);
@@ -292,11 +277,11 @@ void serial_p_configure(SerialPort* serialPort) {
 /*******************************************************************************************************
  *                           IMPLEMENTATION CONSTRUCTOR AND DESTRUCTOR                                 *
  ******************************************************************************************************/
-SerialPort* serial_open(Serial_BaudRate baudRate,
+SerialPort* serial_create(Serial_BaudRate baudRate,
                         Serial_StopBits stopBits,
                         Serial_ParityBit parityBit,
                         Serial_DataBits dataBits,
-                        Serial_State state,
+                        bool echo,
                         const char* device) {
 
     SerialPort* serialPort = malloc(sizeof(SerialPort));
@@ -310,8 +295,10 @@ SerialPort* serial_open(Serial_BaudRate baudRate,
     serialPort->parityBit = parityBit;
     serialPort->dataBits = dataBits;
     serialPort->stopBits = stopBits;
-    serialPort->state = state;
-    serial_p_openPort(serialPort);
+    serialPort->echo = echo;
+    serialPort->timeout = -1;
+    serialPort->fileDesc = -1;
+    serial_openPort(serialPort);
     serial_p_configure(serialPort);
 
     return serialPort;
@@ -319,10 +306,28 @@ SerialPort* serial_open(Serial_BaudRate baudRate,
 
 void serial_close(SerialPort* serial) {
     close(serial->fileDesc);
+    serial->state = CLOSED;
     free(serial);
-
+}
+void serial_closePort(SerialPort* serial) {
+    close(serial->fileDesc);
+    serial->state = CLOSED;
 }
 
+void serial_openPort(SerialPort* serial) {
+    if(serial->device == NULL) {
+        perror("Cant open file when device is nullptr");
+        LOG_ERROR("Can't open nullptr file");
+        abort();
+    }
+    serial->fileDesc = open(serial->device, O_RDWR);
+    if(serial->fileDesc == -1){
+        perror("Cant open file ");
+        LOG_ERROR("Can't open %s file", serial->device);
+        abort();
+    }
+    serial->state = OPEN;
+}
 /*******************************************************************************************************
  *                                     IMPLEMENTATION PUBLIC FUNCTIONS                                 *
  ******************************************************************************************************/

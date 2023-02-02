@@ -26,7 +26,28 @@ void logger_destroy() {
     free(logger);
     logger = NULL;
 }
+
 void logger_log(LogType type, const char* file, const char* func, int line, const char* msg, ...) {
+    logger->type = type;
+    logger->fileDesc = file;
+    logger->func = func;
+    logger->line = line;
+    logger->msg = msg;
+    va_list ap;
+    va_start(ap,msg);
+    logger->list = &ap;
+    logger_print();
+}
+void logger_printTime() {
+    time_t t;
+    t = time(NULL);
+    tzset();
+    char datestr[51];
+    strftime(datestr, sizeof(datestr) - 1, "%a %b %d %T %Z %Y", localtime(&t));
+    fprintf(logger->file, "%s ", datestr);
+}
+
+void logger_print() {
     if(logger == NULL){
         fprintf(stderr, "%s - Line: %d function %s Logger is not initialization, first call logger_init\n", __FILE__, __LINE__, __FUNCTION__);
         return;
@@ -36,7 +57,7 @@ void logger_log(LogType type, const char* file, const char* func, int line, cons
         return;
     }
 
-    switch (type) {
+    switch (logger->type) {
         case DEBUG:
             fprintf(logger->file, "[DEBUG] ");
             break;
@@ -57,20 +78,10 @@ void logger_log(LogType type, const char* file, const char* func, int line, cons
 #ifndef NO_FILE
     fprintf(logger->file, "FILE: %s ", file);
 #endif //NO_FILE
-    fprintf(logger->file, "LINE: %d ", line);
-    fprintf(logger->file, "FUNCTION: %s: \t", func);
+    fprintf(logger->file, "LINE: %d ", logger->line);
+    fprintf(logger->file, "FUNCTION: %s: \t", logger->func);
 
-    va_list ap;
-    va_start(ap, msg);
-    vfprintf(logger->file, msg, ap);
-    va_end(ap);
+    vfprintf(logger->file, logger->msg, *(logger->list));
+    va_end(*(logger->list));
     fprintf(logger->file, "\n");
-}
-void logger_printTime() {
-    time_t t;
-    t = time(NULL);
-    tzset();
-    char datestr[51];
-    strftime(datestr, sizeof(datestr) - 1, "%a %b %d %T %Z %Y", localtime(&t));
-    fprintf(logger->file, "%s ", datestr);
 }
