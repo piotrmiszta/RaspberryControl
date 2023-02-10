@@ -7,7 +7,9 @@
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <string.h>
 #include "Logger.h"
+#include "Definitions.h"
 
 typedef enum Serial_BaudRate {
     B_0,
@@ -56,17 +58,23 @@ typedef enum Serial_State {
 }Serial_State;
 
 typedef struct SerialPort SerialPort;
-
+/**
+ * Serial port is setting all parametrs to identify connection to serial port
+ */
 SerialPort* serial_create(Serial_BaudRate baudRate,
                         Serial_StopBits stopBits,
                         Serial_ParityBit parityBit,
                         Serial_DataBits dataBits,
                         bool echo,
                         const char* device);
-
+/**
+ * Constructor for SerialPort
+ */
 void serial_openPort(SerialPort* serial);
+/**
+ * Opening serialPort
+ */
 void serial_closePort(SerialPort* serial);
-
 void serial_close(SerialPort* serial);
 
 void serial_setBaudRate(Serial_BaudRate baudRate, SerialPort* serial);
@@ -75,8 +83,9 @@ void serial_setParityBits(Serial_ParityBit parityBit, SerialPort* serial);
 void serial_setDataBits(Serial_DataBits dataBits, SerialPort* serial);
 void serial_setDevice(const char* device, SerialPort* serial);
 void serial_setEcho(bool Enabled, SerialPort* serialPort);
-
-
+int serial_read(size_t buffSize, char buff[buffSize], SerialPort* serial);
+int serial_write(const char* msg, SerialPort* serial);
+void* serial_thread(void* arg);
 
 #define SERIAL_CREATE_DEFAULT(device)               serial_create(B_115200, ONE, NONE, EIGHT, CLOSED, device)
 #endif //RASPBERRYCONTROL_SERIAL_H

@@ -8,12 +8,11 @@ typedef struct SerialPort{
     Serial_ParityBit parityBit;
     Serial_DataBits dataBits;
     Serial_State state;
-    bool echo;
-    const char* device;
-
+    int echo;
     int timeout;
     int fileDesc;
     struct termios termios;
+    const char* device;
 }SerialPort;
 /*
  * Private members declared here
@@ -28,7 +27,6 @@ void serial_p_setTimeout(SerialPort* serial);
 void serial_p_setInputFlags(SerialPort* serial);
 void serial_p_setOutputFlags(SerialPort* serial);
 void serial_p_setEcho(SerialPort* serial);
-void serial_openPort(SerialPort* serial);
 void serial_p_configure(SerialPort* serial);
 /*******************************************************************************************************
  *                                    IMPLEMENTATION PRIVATE MEMBERS                                   *
@@ -43,7 +41,7 @@ void serial_p_setTermios(SerialPort* serial) {
 }
 
 void serial_p_setDataBits(SerialPort* serial) {
-    serial->termios.c_cflag &= ~CSIZE;
+    serial->termios.c_cflag &= (uint)(~CSIZE);
     switch (serial->dataBits) {
         case FIVE:
             serial->termios.c_cflag |= CS5;
@@ -61,58 +59,46 @@ void serial_p_setDataBits(SerialPort* serial) {
             serial->termios.c_cflag |= CS8;
             LOG_INFO("Data bits sets to EIGHT for FD = %d", serial->fileDesc);
             break;
-        default:
-            perror("Not valid Serial_DataBits");
-            LOG_FATAL("Not valid Serial_DataBits, aborting");
-            abort();
     }
 }
 
 void serial_p_setParityBits(SerialPort* serial) {
     switch (serial->parityBit) {
         case NONE:
-            serial->termios.c_cflag &= ~PARENB;
+            serial->termios.c_cflag &= (uint)(~PARENB);
             LOG_INFO("Parity bits sets to NONE for FD = %d", serial->fileDesc);
             break;
         case EVEN:
-            serial->termios.c_cflag |= PARENB;
-            serial->termios.c_cflag &= ~PARODD;
+            serial->termios.c_cflag |= (uint)(PARENB);
+            serial->termios.c_cflag &= (uint)(~PARODD);
             LOG_INFO("Parity bits sets to EVEN for FD = %d", serial->fileDesc);
             break;
         case ODD:
-            serial->termios.c_cflag |= PARENB;
-            serial->termios.c_cflag |= PARODD;
+            serial->termios.c_cflag |= (uint)(PARENB);
+            serial->termios.c_cflag |= (uint)(PARODD);
             LOG_INFO("Parity bits sets to ODD for FD = %d", serial->fileDesc);
             break;
-        default:
-            perror("Not valid Serial_ParityBits");
-            LOG_FATAL("Not valid Serial_ParityBits, aborting");
-            abort();
     }
 }
 
 void serial_p_setStopBits(SerialPort* serial) {
     switch(serial->stopBits){
         case ONE:
-            serial->termios.c_cflag &= ~CSTOPB;
+            serial->termios.c_cflag &= (uint)(~CSTOPB);
             LOG_INFO("Stop bits sets to ONE for FD = %d", serial->fileDesc);
             break;
         case TWO:
-            serial->termios.c_cflag |= CSTOPB;
+            serial->termios.c_cflag |= (uint)(CSTOPB);
             LOG_INFO("Stop bits sets to TWO for FD = %d", serial->fileDesc);
             break;
-        default:
-            perror("Not valid Serial_StopBits");
-            LOG_FATAL("Not valid Serial_StopBits, aborting");
-            abort();
     }
 }
 
 void serial_p_setBaudRate(SerialPort* serial) {
-    serial->termios.c_cflag |= CREAD | CLOCAL;
+    serial->termios.c_cflag |= (uint)(CREAD | CLOCAL);
 
-    serial->termios.c_cflag &= ~CBAUD;
-    serial->termios.c_cflag |= CBAUDEX;
+    serial->termios.c_cflag &= (uint)(~CBAUD);
+    serial->termios.c_cflag |= (uint)(CBAUDEX);
     switch(serial->baudRate) {
         case B_0:
             serial->termios.c_ispeed = 0;
@@ -214,10 +200,6 @@ void serial_p_setBaudRate(SerialPort* serial) {
             serial->termios.c_ospeed = 460800;
             LOG_INFO("Baud rate set to 460800 for FD = %d", serial->fileDesc);
             break;
-        default:
-            perror("Not valid Serial_BaudRate");
-            LOG_FATAL("Not valid Serial_BaudRate, aborting");
-            abort();
     }
 }
 
@@ -242,24 +224,24 @@ void serial_p_setTimeout(SerialPort* serial) {
 
 void serial_p_setEcho(SerialPort* serial) {
     if(serial->echo) {
-        serial->termios.c_lflag |= ECHO;
+        serial->termios.c_lflag |= (uint)(ECHO);
     } else {
-        serial->termios.c_lflag &= ~(ECHO);
+        serial->termios.c_lflag &= (uint)(~ECHO);
     }
-    serial->termios.c_lflag		&= ~ICANON;
-    serial->termios.c_lflag		&= ~ECHOE;
-    serial->termios.c_lflag		&= ~ECHONL;
-    serial->termios.c_lflag		&= ~ISIG;
+    serial->termios.c_lflag		&= (uint)(~ICANON);
+    serial->termios.c_lflag		&= (uint)(~ECHOE);
+    serial->termios.c_lflag		&= (uint)(~ECHONL);
+    serial->termios.c_lflag		&= (uint)(~ISIG);
 }
 
 void serial_p_setInputFlags(SerialPort* serial) {
-    serial->termios.c_iflag &= ~(IXON | IXOFF | IXANY);
-    serial->termios.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL);
+    serial->termios.c_iflag &= (uint)(~(IXON | IXOFF | IXANY));
+    serial->termios.c_iflag &= (uint)(~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL));
 }
 
 void serial_p_setOutputFlags(SerialPort* serial) {
     serial->termios.c_oflag = 0;
-    serial->termios.c_oflag &= ~OPOST;
+    serial->termios.c_oflag &= (uint)(~OPOST);
 }
 
 void serial_p_configure(SerialPort* serialPort) {
@@ -329,7 +311,7 @@ void serial_openPort(SerialPort* serial) {
     serial->state = OPEN;
 }
 /*******************************************************************************************************
- *                                     IMPLEMENTATION PUBLIC FUNCTIONS                                 *
+ *                                     IMPLEMENTATION SETTERS FUNCTIONS                                *
  ******************************************************************************************************/
 
 void serial_setBaudRate(Serial_BaudRate baudRate, SerialPort* serial) {
@@ -366,5 +348,76 @@ void serial_setEcho(bool Enabled, SerialPort* serial) {
     serial->echo = Enabled;
     if(serial->state == OPEN) {
         serial_p_configure(serial);
+    }
+}
+/*******************************************************************************************************
+ *                                     IMPLEMENTATION WRITE READ FUNCTIONS                             *
+ ******************************************************************************************************/
+int serial_write(const char* msg, SerialPort* serial) {
+    ssize_t writeResult;
+    if(serial->state == CLOSED) {
+       fprintf(stderr, "%s: %d: Cant write to closed port,  call first serial_open()\n", __FUNCTION__ , __LINE__);
+       LOG_WARNING("Write to closed port");
+       return SERIAL_E_WRITE;
+   }
+   if(serial->fileDesc < 0) {
+       fprintf(stderr, "%s: %d: Tried to write to port when socket desc < 0\n", __FUNCTION__ , __LINE__);
+       LOG_WARNING("Write to port with file descriptor < 0");
+       return SERIAL_E_WRITE;
+   }
+   writeResult = write(serial->fileDesc, msg, strlen(msg));
+   return (int)writeResult;
+}
+
+int serial_read(size_t buffSize, char buff[buffSize], SerialPort* serial) {
+    ssize_t nRead;
+    if(serial->state == CLOSED) {
+        fprintf(stderr, "%s: %d: Cant read from closed port, call first serial_open()\n", __FUNCTION__ , __LINE__);
+        LOG_WARNING("Write to closed port");
+        return SERIAL_E_READ;
+    }
+    if(serial->fileDesc < 0) {
+        fprintf(stderr, "%s: %d: Tried to read to port when socket desc < 0\n", __FUNCTION__ , __LINE__);
+        LOG_WARNING("Write to port with file descriptor < 0");
+        return SERIAL_E_READ;
+    }
+    nRead = read(serial->fileDesc, buff, buffSize);
+    if(nRead < 0) {
+        fprintf(stderr, "%s: %d: Cant read nread < 0\n", __FUNCTION__ , __LINE__);
+        LOG_WARNING("Cant read nRead < 0");
+        return SERIAL_E_READ;
+    }
+    else if(nRead == 0) {
+        fprintf(stderr, "%s: %d: Cant read nread == 0, EOS or disconect\n", __FUNCTION__ , __LINE__);
+        LOG_WARNING("Cant read nRead == 0 ");
+        return SERIAL_E_READ;
+    }
+    else {
+        return SUCCESS;
+    }
+}
+
+void* serial_thread(void* arg) {
+    int i = 0;
+    //ARG is a pointer to serialPort so dereference it
+    SerialPort* serial = (SerialPort*)(arg);
+    serial_openPort(serial);
+    while(1) {
+        char temp[255];
+        if(i % 2 == 0) {
+            char msg[] = {'1'};
+            serial_write(msg , serial);
+            LOG_INFO("Succesful write %s", msg);
+        }
+        else {
+            char msg[] = {'2'};
+            serial_write(msg , serial);
+            LOG_INFO("Succesful write %s", msg);
+        }
+        serial_read(255, temp, serial);
+        LOG_INFO("Succesful read %s", temp);
+        printf("%s", temp);
+        sleep(1);
+        i++;
     }
 }
