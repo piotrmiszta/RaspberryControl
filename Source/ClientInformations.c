@@ -5,7 +5,7 @@
 #define LOGIN_LEN   24
 #define PASS_LEN    24
 #define MAC_LEN     18      //xx:xx:xx:xx:xx:xx/0
-
+#define FILE_NAME   "../data.txt"
 typedef struct ClientInformation {
     char mac[MAC_LEN];
     char name[NAME_LEN];
@@ -82,7 +82,7 @@ int client_checkString(FILE* file, const char* string) {
 
 ClientInfo* client_searchClient(const char* macAddress) {
     ClientInfo* client = NULL;
-    FILE* file = fopen("../data.txt", "r");
+    FILE* file = fopen(FILE_NAME, "r");
     if(file == NULL) {
         fprintf(stderr, "%s: %d: Cant open file date", __FUNCTION__, __LINE__);
         LOG_ERROR("Cant open DATE file");
@@ -118,7 +118,7 @@ int client_addClient(const ClientInfo* client) {
         LOG_ERROR("Client is null pointer");
         return E_ARG;
     }
-    file = fopen("../data2.txt", "w");
+    file = fopen(FILE_NAME, "a");
     if(file == NULL) {
         fprintf(stderr, "%s: %d: Cant open file date", __FUNCTION__, __LINE__);
         LOG_ERROR("Cant open DATE file");

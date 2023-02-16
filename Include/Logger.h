@@ -22,10 +22,8 @@ typedef struct Logger Logger;
 
 void logger_init(const char* filename);
 void logger_log(LogType type, const char* file, const char* func, int line, const char* msg, ...); //THIS FUNCTION WILL BE SETTING STRUCT
-void logger_print();
 void logger_destroy();
 void logger_printTime();
-void* logger_thread(void* arg);
 
 #define LOG_DEBUG(...)     logger_log(DEBUG, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__)
 #define LOG_INFO(...)      logger_log(INFO, __FILE__, __FUNCTION__, __LINE__, __VA_ARGS__)
